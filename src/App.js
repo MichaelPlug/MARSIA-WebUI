@@ -13,39 +13,43 @@ class App extends Component {
   render() {
     return (
       <div>
-        <input class="apibox" type="text" placeholder="API's link"  onChange={(e) => this.api = e.target.value}/>
-        <div class="Container">
-          <h2>Certify</h2>
-          <div>Actors</div>
-          <input id="Input-client-actors" type="text" placeholder="Actors"/>
-          <div>Roles</div>
-          <input id="Input-client-roles" type="text" placeholder="roles"/>
-          <div></div>
-          <input type="submit" value="Submit" onClick={() => this.sendCertifyRequest()}/>
-          <div></div>
-        </div>
-        <div class="Container">
-          <h2>Data Owner</h2>
-          <div>Message</div>
-          <textarea id="Input-data-owner-message" type="text" placeholder="Message" rows="4" cols="50"/>
-          <div>Policy</div>
-          <input id="Input-data-owner-policy" type="text" placeholder="Policy"/>
-          <div>Entries</div>
-          <input id="Input-data-owner-entries" type="text" placeholder="Entries"/>
-          <div></div>
-          <input type="submit" value="Cipher" onClick={() => this.sendDataOwnerRequestToCipher()}/>
-          <input type="submit" value="Generate PP KK" onClick={() => this.sendDataOwnerRequestToGeneratePPKK()}/>
-        </div>
-        <div class="Container">
-          <h2>Client</h2>
-          <div>Process id</div>
-          <input id="Input-client-process-id" type="text" placeholder="Process id"/>
-          <div>Reader address</div>
-          <input id="Input-client-reader-address" type="text" placeholder="Reader address"/>
-          <div>Gid</div>
-          <input id="Input-client-gid" type="text" placeholder="Gid"/>
-          <div></div>
-          <input type="submit" value="Submit" onClick={() => this.sendClientRequest()}/>
+        <input id="apitext" class="apibox" type="text" placeholder="API's link"  onChange={(e) => this.api = e.target.value}/>
+        <input id="apibutton" type="button" value="Connect" onClick={() => this.connectToAPI()}/>
+        <div id = "tabs-container">
+          <div class="Container">
+            <h2>Certify</h2>
+            <div>Actors</div>
+            <input id="Input-client-actors" type="text" placeholder="Actors"/>
+            <div>Roles</div>
+            <input id="Input-client-roles" type="text" placeholder="roles"/>
+            <div></div>
+            <input type="submit" value="Submit" onClick={() => this.sendCertifyRequest()}/>
+            <div></div>
+          </div>
+          <div class="Container">
+            <h2>Data Owner</h2>
+            <div>Message</div>
+            <textarea id="Input-data-owner-message" type="text" placeholder="Message" rows="4" cols="50"/>
+            <div>Policy</div>
+            <input id="Input-data-owner-policy" type="text" placeholder="Policy"/>
+            <div>Entries</div>
+            <input id="Input-data-owner-entries" type="text" placeholder="Entries"/>
+            <div></div>
+            <input type="submit" value="Cipher" onClick={() => this.sendDataOwnerRequestToCipher()}/>
+            <input type="submit" value="Generate PP KK" onClick={() => this.sendDataOwnerRequestToGeneratePPKK()}/>
+          </div>
+          <div class="Container">
+            <h2>Client</h2>
+            <div>Process id</div>
+            <input id="Input-client-process-id" type="text" placeholder="Process id"/>
+            <div>Reader address</div>
+            <input id="Input-client-reader-address" type="text" placeholder="Reader address"/>
+            <div>Gid</div>
+            <input id="Input-client-gid" type="text" placeholder="Gid"/>
+            <div></div>
+            <input type="submit" value="Handshake" onClick={() => this.sendClientRequestToHandshake()}/>
+            <input type="submit" value="Generate key" onClick={() => this.sendClientRequestToGenerateKye()}/>
+          </div>
         </div>
         <div class="cleaner"></div>
         <div class="loader"></div>
@@ -110,12 +114,12 @@ class App extends Component {
     console.log(result);
   }
 
-  sendClientRequest = () => {
+  sendClientRequestToGenerateKey = () => {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
 
-    const response = fetch(this.api.concat("client"), {
+    const response = fetch(this.api.concat("client/generateKey"), {
       method: "POST",
       body: JSON.stringify({
         processId: processId,
@@ -130,12 +134,12 @@ class App extends Component {
     console.log(result);
   }
 
-  sendClientRequest = () => {
+  sendClientRequestToHandshake = () => {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
 
-    const response = fetch(this.api.concat("client"), {
+    const response = fetch(this.api.concat("client/handshake"), {
       method: "POST",
       body: JSON.stringify({
         processId: processId,
@@ -147,6 +151,26 @@ class App extends Component {
       }
     });
     const result = response.json();
+    console.log(result);
+  }
+
+  async connectToAPI() {
+    console.log("connectToAPI");
+    const response = await fetch(this.api, {
+      method: "GET",
+      headers: {
+        'Access-Control-Allow-Origin': 'http://0.0.0.0',
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    });
+    console.log("Waiting for response...")
+    await console.log(response);
+    return;
+    const result = response.json();
+    var text = document.getElementById("apitext");
+    text.disabled = true;
+    var button = document.getElementById("apibutton");
+    button.disabled = true;
     console.log(result);
   }
 
