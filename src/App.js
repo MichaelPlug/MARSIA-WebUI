@@ -6,15 +6,13 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.chain = "eth";
-    this.api = ""
+    this.api = "http://0.0.0.0:8888/";
     this.tab = 0;
   }
 
   render() {
     return (
       <div>
-        <input id="apitext" class="apibox" type="text" placeholder="API's link"  onChange={(e) => this.api = e.target.value}/>
-        <input id="apibutton" type="button" value="Connect" onClick={() => this.connectToAPI()}/>
         <div id = "tabs-container">
           <div class="Container">
             <h2>Certify</h2>
@@ -61,7 +59,7 @@ class App extends Component {
     var actors = document.getElementById("Input-client-actors").value;
     var roles = document.getElementById("Input-client-roles").value;
 
-    const response = fetch(this.api.concat("certification"), {
+    const response = fetch(this.api + "certification", {
       method: "POST",
       body: JSON.stringify({
         actors: actors,
@@ -114,7 +112,7 @@ class App extends Component {
     console.log(result);
   }
 
-  sendClientRequestToGenerateKey = () => {
+   sendClientRequestToGenerateKey = () => {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
@@ -134,30 +132,33 @@ class App extends Component {
     console.log(result);
   }
 
-  sendClientRequestToHandshake = () => {
+  async sendClientRequestToHandshake()  {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
-
-    const response = fetch(this.api.concat("client/handshake"), {
+    console.log(processId); 
+    console.log(readerAddress);
+    console.log(gid);
+    console.log("sendClientRequestToHandshake");
+    const response = await fetch("http://0.0.0.0:8888/client/handshake/", {
       method: "POST",
       body: JSON.stringify({
-        processId: processId,
-        readerAddress: readerAddress,
+        process_id: processId,
+        reader_address: readerAddress,
         gid: gid
       }),
       headers: {
-        "Content-type": "application/json; charset=UTF-8"
+        "Content-type": "application/json; charset=UTF-8",
+        'Access-Control-Allow-Origin': '* ',
       }
     });
-    const result = response.json();
+    const result = await response.json();
     console.log(result);
   }
 
   async connectToAPI() {
     console.log("connectToAPI");
     const response = await fetch(this.api, {
-      method: "GET",
       headers: {
         'Access-Control-Allow-Origin': 'http://0.0.0.0',
         "Content-type": "application/json; charset=UTF-8"
