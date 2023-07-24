@@ -8,6 +8,7 @@ class App extends Component {
     this.chain = "eth";
     this.api = "http://0.0.0.0:8888/";
     this.tab = 0;
+    this.json_message = "";
   }
 
   render() {
@@ -16,25 +17,26 @@ class App extends Component {
         <div id = "tabs-container">
           <div class="Container">
             <h2>Certify</h2>
-            <div>Actors</div>
-            <input id="Input-client-actors" type="text" placeholder="Actors"/>
-            <div>Roles</div>
-            <input id="Input-client-roles" type="text" placeholder="roles"/>
+            <div>Actors and Roles</div>
+            <textarea id="Input-client-roles" type="text" placeholder="roles" rows="5" cols="30"/>
             <div></div>
             <input type="submit" value="Submit" onClick={() => this.sendCertifyRequest()}/>
             <div></div>
           </div>
           <div class="Container">
             <h2>Data Owner</h2>
-            <div>Message</div>
-            <textarea id="Input-data-owner-message" type="text" placeholder="Message" rows="4" cols="50"/>
-            <div>Policy</div>
-            <input id="Input-data-owner-policy" type="text" placeholder="Policy"/>
-            <div>Entries</div>
-            <input id="Input-data-owner-entries" type="text" placeholder="Entries"/>
             <div></div>
-            <input type="submit" value="Cipher" onClick={() => this.sendDataOwnerRequestToCipher()}/>
+            <div>Process ID</div>
+            <input id="Input-data-owner-processid" type="text" placeholder="Process Id"/>
+            <div>Message</div>
+            <textarea id="Input-data-owner-message" accept=".json" rows="5" cols="30"/>
+            <div>Policy</div>
+            <textarea id="Input-data-owner-policy" type="text" placeholder="Policy" rows="5" cols="30"/>
+            <div>Entries</div>
+            <textarea id="Input-data-owner-entries" type="text" placeholder="Entries" rows="2" cols="30"/>
+            <div></div>
             <input type="submit" value="Generate PP KK" onClick={() => this.sendDataOwnerRequestToGeneratePPKK()}/>
+            <input type="submit" value="Cipher" onClick={() => this.sendDataOwnerRequestToCipher()}/>
           </div>
           <div class="Container">
             <h2>Client</h2>
@@ -46,7 +48,19 @@ class App extends Component {
             <input id="Input-client-gid" type="text" placeholder="Gid"/>
             <div></div>
             <input type="submit" value="Handshake" onClick={() => this.sendClientRequestToHandshake()}/>
-            <input type="submit" value="Generate key" onClick={() => this.sendClientRequestToGenerateKye()}/>
+            <input type="submit" value="Generate key" onClick={() => this.sendClientRequestToGenerateKey()}/>
+          </div>
+          <div class="Container">
+            <h2>Reader</h2>
+            <div>Message id</div>
+            <input id="Input-reader-message-id" type="text" placeholder="Message id"/>
+            <div>Slice id</div>
+            <input id="Input-reader-slice-id" type="text" placeholder="Slice id"/>
+            <div></div>
+            <input type="checkbox" id="generate" name="generate public parameters" value="g"/>
+            <label for="generate"> Generate public parameters</label>
+            <div></div>
+            <input type="submit" value="Read" onClick={() => this.sendReaderRequest()}/>
           </div>
         </div>
         <div class="cleaner"></div>
@@ -55,105 +69,125 @@ class App extends Component {
    );
   }
 
-  sendCertifyRequest = () => {
-    var actors = document.getElementById("Input-client-actors").value;
-    var roles = document.getElementById("Input-client-roles").value;
+  readJson = (e) => {
+    var message = document.getElementById("Input-data-owner-message-file").files[0];
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var content = e.target.result;
+      try {
+        console.log(content);
+        const jsonData = JSON.parse(content);
 
-    const response = fetch(this.api + "certification", {
+      } catch (error) {
+        console.error('Error parsing JSON file:', error);
+      }
+      this.json_message = content;
+    };
+    reader.app = this;
+    reader.readAsText(message);
+    console.log("eheheh " + this.json_message);
+  }
+
+
+  async sendCertifyRequest()  {
+    var roles = document.getElementById("Input-client-roles").value;
+    var dict_roles = this.readActorsAndRoles(roles);
+    var list_actors = Object.keys(dict_roles)
+    alert("Request sent")
+    const response = await fetch(this.api + "certification/", {
       method: "POST",
       body: JSON.stringify({
-        actors: actors,
-        roles: roles
+        'actors': list_actors,
+        'roles': dict_roles
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
-    const result = response.json();
+    const result = await response.json();
+    alert("Your process id is ready");
     console.log(result);
   } 
 
-  sendDataOwnerRequestToCipher = () => {
+  async sendDataOwnerRequestToCipher(){
+    var process_id = document.getElementById("Input-data-owner-processid").value;
     var message = document.getElementById("Input-data-owner-message").value;
-    var policy = document.getElementById("Input-data-owner-policy").value;
-    var entries = document.getElementById("Input-data-owner-entries").value;
-    const response = fetch(this.api.concat("dataowner/cipher"), {
+    alert(this.json_message);
+    const response = await fetch(this.api.concat("dataOwner/cipher/"), {
       method: "POST",
       body: JSON.stringify({
-        message: message,
-        policy: policy,
-        entries: entries
+        'process_id': process_id,
+        'message': JSON.parse(message),
+        'policy': this.readPolicy(),
+        'entries': this.readEntries()
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
-    const result = response.json();
+    console.log(response);
+    return;
+    const result = await response.json();
     console.log(result);
   }
 
-  sendDataOwnerRequestToGeneratePPKK = () => {
+  async sendDataOwnerRequestToGeneratePPKK() {
+    var process_id = document.getElementById("Input-data-owner-processid").value;
     var message = document.getElementById("Input-data-owner-message").value;
-    var policy = document.getElementById("Input-data-owner-policy").value;
-    var entries = document.getElementById("Input-data-owner-entries").value;
 
-    const response = fetch(this.api.concat("dataowner/generate_pp_pk"), {
+    const response = await fetch(this.api.concat("dataOwner/generate_pp_pk/"), {
       method: "POST",
       body: JSON.stringify({
-        message: message,
-        policy: policy,
-        entries: entries
+        'process_id': process_id,
+        'message': JSON.parse(message),
+        'policy': this.readPolicy(),
+        'entries': this.readEntries()
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
-    const result = response.json();
+    const result = await response.json();
     console.log(result);
   }
 
-   sendClientRequestToGenerateKey = () => {
+   async sendClientRequestToGenerateKey() {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
 
-    const response = fetch(this.api.concat("client/generateKey"), {
+    const response = await fetch(this.api.concat("client/generateKey/"), {
       method: "POST",
       body: JSON.stringify({
-        processId: processId,
-        readerAddress: readerAddress,
-        gid: gid
+        'process_id': processId,
+        'reader_address': readerAddress,
+        'gid': gid
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
-    const result = response.json();
-    console.log(result);
+    console.log(response);
   }
 
   async sendClientRequestToHandshake()  {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
-    console.log(processId); 
-    console.log(readerAddress);
-    console.log(gid);
     console.log("sendClientRequestToHandshake");
     const response = await fetch("http://0.0.0.0:8888/client/handshake/", {
       method: "POST",
       body: JSON.stringify({
-        process_id: processId,
-        reader_address: readerAddress,
-        gid: gid
+        'process_id': processId,
+        'reader_address': readerAddress,
+        'gid': gid
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
         'Access-Control-Allow-Origin': '* ',
       }
     });
-    const result = await response.json();
-    console.log(result);
+    console.log(response);
   }
 
   async connectToAPI() {
@@ -167,14 +201,7 @@ class App extends Component {
     console.log("Waiting for response...")
     await console.log(response);
     return;
-    const result = response.json();
-    var text = document.getElementById("apitext");
-    text.disabled = true;
-    var button = document.getElementById("apibutton");
-    button.disabled = true;
-    console.log(result);
   }
-
 
 
   moveToCertify = () => {
@@ -206,5 +233,103 @@ class App extends Component {
     clientcontainer.style.display = "block";
   }
 
+  fromStringToArray = (inputString) => {
+    // Remove the square brackets and single quotes from the string
+    const stringWithoutBrackets = inputString.replace(/[\[\]']/g, '');
+
+    // Split the string by commas to create an array
+    const dataArray = stringWithoutBrackets.split(', ');
+
+    return dataArray;
+  }
+
+  fromStringToArrayOfArrays = (inputString) => {
+    try {
+      const cleanedString = inputString.replace(/'/g, '"');
+      const parsedArray = eval(cleanedString);
+      
+      if (Array.isArray(parsedArray)) {
+        if (parsedArray.every(Array.isArray)) {
+          return parsedArray;
+        } else {
+          throw new Error('The input string does not contain an array of arrays.');
+        }
+      } else {
+        throw new Error('The input string does not represent an array.');
+      }
+    } catch (error) {
+      console.error('Error while parsing the string:', error);
+      return null;
+    }
+  }
+
+  fromStringToDict = (inputString) => {
+    // Remove the curly braces and single quotes from the string
+  
+    inputString.replace("\n", " ");
+  
+    const stringWithoutBraces = inputString.replace(/[\{\}\[\]'']/g, '');
+    // Split the string by commas followed by a space
+    const keyValuePairs = stringWithoutBraces.split(', ');
+    // Create an empty object
+    const dictionary = {};
+  
+    // Iterate over each key-value pair and add them to the dictionary
+    var pastKey = ""
+    keyValuePairs.forEach(pair => {
+      const [key, value] = pair.split(': ');
+      if (value === undefined){
+        dictionary[pastKey].push(key)
+      }
+      else{
+        dictionary[key] = [value];
+        pastKey = key
+      }
+    });
+  
+    return dictionary;
+  }
+
+  readActorsAndRoles = (inputString) => {
+    const inputRows = inputString.split(';');
+    var dictionary = {};
+    inputRows.forEach(row => {
+      var splittedRow = row.split(":");
+      var key = splittedRow[0].trim();
+      var roles = splittedRow[1].split(",");
+      if (dictionary[key] === undefined){
+        dictionary[key] = [];
+      }
+      roles.forEach(role => {
+        dictionary[key].push(role.trim());
+      })
+    })      
+    return dictionary
+  }
+
+  readPolicy = () => {
+    var inputString = document.getElementById("Input-data-owner-policy").value;
+    const process_id = document.getElementById("Input-data-owner-processid").value;
+    inputString = inputString.replace("#Pid", process_id);
+    var output = [];
+    inputString.split(',').forEach(p => {  
+      output.push(p.trim());
+      }  
+    );
+    return output;
+  }
+
+  readEntries = () => {
+    var inputString = document.getElementById("Input-data-owner-entries").value;
+    var output = [];
+    inputString.split(';').forEach(p => {  
+      var entry = [];
+      p.trim().split(',').forEach(e => {
+        entry.push(e.trim());
+      });
+      output.push(entry);
+    });
+    return output;
+  }
 }
 export default App;
