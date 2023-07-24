@@ -14,8 +14,14 @@ class App extends Component {
   render() {
     return (
       <div>
-        <div id = "tabs-container">
-          <div class="Container">
+        <ul>
+          <li><a onClick={() => this.moveToCertify()}>Certify</a></li>
+          <li><a onClick={() => this.moveToDataOwner()}>DataOwner</a></li>
+          <li><a onClick={() => this.moveToClient()}>Client</a></li>
+          <li><a onClick={() => this.moveToReader()}>Reader</a></li>
+        </ul>
+
+          <div class="Container" id = "certify-container">
             <h2>Certify</h2>
             <div>Actors and Roles</div>
             <textarea id="Input-client-roles" type="text" placeholder="roles" rows="5" cols="30"/>
@@ -23,7 +29,7 @@ class App extends Component {
             <input type="submit" value="Submit" onClick={() => this.sendCertifyRequest()}/>
             <div></div>
           </div>
-          <div class="Container">
+          <div class="Container" id = "data-owner-container">
             <h2>Data Owner</h2>
             <div></div>
             <div>Process ID</div>
@@ -38,7 +44,7 @@ class App extends Component {
             <input type="submit" value="Generate PP KK" onClick={() => this.sendDataOwnerRequestToGeneratePPKK()}/>
             <input type="submit" value="Cipher" onClick={() => this.sendDataOwnerRequestToCipher()}/>
           </div>
-          <div class="Container">
+          <div class="Container" id ="client-container">
             <h2>Client</h2>
             <div>Process id</div>
             <input id="Input-client-process-id" type="text" placeholder="Process id"/>
@@ -50,19 +56,23 @@ class App extends Component {
             <input type="submit" value="Handshake" onClick={() => this.sendClientRequestToHandshake()}/>
             <input type="submit" value="Generate key" onClick={() => this.sendClientRequestToGenerateKey()}/>
           </div>
-          <div class="Container">
+          <div class="Container" id="reader-container">
             <h2>Reader</h2>
+            <div>Process id</div>
+            <input id="Input-reader-process-id" type="text" placeholder="Process id"/>
             <div>Message id</div>
             <input id="Input-reader-message-id" type="text" placeholder="Message id"/>
             <div>Slice id</div>
             <input id="Input-reader-slice-id" type="text" placeholder="Slice id"/>
             <div></div>
-            <input type="checkbox" id="generate" name="generate public parameters" value="g"/>
-            <label for="generate"> Generate public parameters</label>
+            <div>Gid</div>
+            <input id="Input-reader-gid" type="text" placeholder="Gid"/>
+            <div></div>
+            <input type="checkbox" id="input-reader-generate" name="generate public parameters" value="g"/>
+            <label for="input-reader-generate"> Generate public parameters</label>
             <div></div>
             <input type="submit" value="Read" onClick={() => this.sendReaderRequest()}/>
           </div>
-        </div>
         <div class="cleaner"></div>
         <div class="loader"></div>
       </div>   
@@ -127,8 +137,6 @@ class App extends Component {
     });
     console.log(response);
     return;
-    const result = await response.json();
-    console.log(result);
   }
 
   async sendDataOwnerRequestToGeneratePPKK() {
@@ -168,13 +176,13 @@ class App extends Component {
       }
     });
     console.log(response);
+    console.log("Key generated")
   }
 
   async sendClientRequestToHandshake()  {
     var processId = document.getElementById("Input-client-process-id").value;
     var readerAddress = document.getElementById("Input-client-reader-address").value;
     var gid = document.getElementById("Input-client-gid").value;
-    console.log("sendClientRequestToHandshake");
     const response = await fetch("http://0.0.0.0:8888/client/handshake/", {
       method: "POST",
       body: JSON.stringify({
@@ -188,6 +196,31 @@ class App extends Component {
       }
     });
     console.log(response);
+    console.log("Handshake completed")
+  }
+
+  async sendReaderRequest() {
+    var processId = document.getElementById("Input-reader-process-id").value;
+    var messageId = document.getElementById("Input-reader-message-id").value;
+    var sliceId = document.getElementById("Input-reader-slice-id").value;
+    var gid = document.getElementById("Input-reader-gid").value;
+    var generate = document.getElementById("input-reader-generate").checked;
+    const response = await fetch("http://0.0.0.0:8888/read/", {
+      method: "POST",
+      body: JSON.stringify({
+        'process_id': processId,
+        'message_id': messageId,
+        'generate': generate,
+        'gid' : gid,
+        'slice_id': sliceId
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        'Access-Control-Allow-Origin': '* ',
+      }
+    });
+    console.log(response);
+    console.log("Reading completed")
   }
 
   async connectToAPI() {
@@ -212,6 +245,8 @@ class App extends Component {
     dataownercontainer.style.display = "none";
     var clientcontainer = document.getElementById("client-container");
     clientcontainer.style.display = "none";
+    var readercontainer = document.getElementById("reader-container");
+    readercontainer.style.display = "none";
 
   }
   moveToDataOwner = () => {
@@ -222,6 +257,8 @@ class App extends Component {
     dataownercontainer.style.display = "block";
     var clientcontainer = document.getElementById("client-container");
     clientcontainer.style.display = "none";
+    var readercontainer = document.getElementById("reader-container");
+    readercontainer.style.display = "none";
   }
   moveToClient = () => {
     this.tab=2;
@@ -231,6 +268,20 @@ class App extends Component {
     dataownercontainer.style.display = "none";
     var clientcontainer = document.getElementById("client-container");
     clientcontainer.style.display = "block";
+    var readercontainer = document.getElementById("reader-container");
+    readercontainer.style.display = "none";
+  }
+
+  moveToReader() {
+    this.tab=3;
+    var certifycontainer = document.getElementById("certify-container");
+    certifycontainer.style.display = "none";
+    var dataownercontainer = document.getElementById("data-owner-container");
+    dataownercontainer.style.display = "none";
+    var clientcontainer = document.getElementById("client-container");
+    clientcontainer.style.display = "none";
+    var readercontainer = document.getElementById("reader-container");
+    readercontainer.style.display = "block";
   }
 
   fromStringToArray = (inputString) => {
