@@ -1,6 +1,20 @@
-actors:
-['DATAOWNER_MANUFACTURER', 'READER_SUPPLIER1', 'READER_SUPPLIER2']
+actors and roles:
 
-roles:
+DATAOWNER_MANUFACTURER: MANUFACTURER; READER_SUPPLIER1: SUPPLIER, ELECTRONICS; READER_SUPPLIER2: SUPPLIER, MECHANICS
 
-{'DATAOWNER_MANUFACTURER': ['MANUFACTURER'], 'READER_SUPPLIER1': ['SUPPLIER', 'ELECTRONICS'], 'READER_SUPPLIER2': ['SUPPLIER', 'MECHANICS']}
+policy:
+(#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or SUPPLIER@OU), (#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or (SUPPLIER@OU and ELECTRONICS@OT), (#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or (SUPPLIER@OU and MECHANICS@TU)
+
+entries:
+ID, SortAs, GlossTerm; Acronym, Abbrev; Specs, Dates
+
+message:
+{
+    "ID": "SGML",
+    "SortAs": "LMGS",
+    "GlossTerm": "Standard Generalized Markup Language",
+    "Acronym": "GSML",
+    "Abbrev": "ISO 8879:1986",
+    "Specs": "928162",
+    "Dates": "NOW"
+}
