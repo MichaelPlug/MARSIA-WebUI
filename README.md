@@ -1,5 +1,5 @@
-# Martsia webview
-Simple React app to lunch a web interface to interract with Martisa API.
+# SPECK - Secrecy and Privacy Enhancer for Ciphered Knowledge.
+A React app to lunch a web interface to interract with Martisa API.
 This project is an extension of the following github repositories:
 - [MARTSIA Ethereum](https://github.com/apwbs/MARTSIA-Ethereum)
 - [MARTSIA Algorand](https://github.com/apwbs/MARTSIA-Algorand)
