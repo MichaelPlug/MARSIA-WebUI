@@ -6,7 +6,7 @@ policy:
 (#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or SUPPLIER@OU), (#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or (SUPPLIER@OU and ELECTRONICS@OT), (#Pid@UT and #Pid@OU and #Pid@OT and #Pid@TU) and (MANUFACTURER@UT or (SUPPLIER@OU and MECHANICS@TU)
 
 entries:
-    ID, SortAs, GlossTerm; Acronym, Abbrev; Specs, Dates
+ID, SortAs, GlossTerm; Acronym, Abbrev; Specs, Dates
 
 message:
 {
