@@ -1,5 +1,5 @@
 # MARTSIA WebUI
-A React app to lunch a web interface to interact with Martisa API.
+A React app to lunch a web interface to interact with MARTSIA API.
 This project is an extension of the following github repositories:
 - [MARTSIA Ethereum](https://github.com/apwbs/MARTSIA-Ethereum)
 - [MARTSIA Algorand](https://github.com/apwbs/MARTSIA-Algorand)
