@@ -1,2 +1,2 @@
-docker build . -t webmartsia
-docker run --rm -i -p 80:3000 webmartsia
+docker build . -t martsia-webui
+docker run --rm -i -p 80:3000 martsia-webui

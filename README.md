@@ -1,5 +1,5 @@
-# MARTSIA-frontend
-A React app to lunch a web interface to interract with Martisa API.
+# MARTSIA WebUI
+A React app to lunch a web interface to interact with Martisa API.
 This project is an extension of the following github repositories:
 - [MARTSIA Ethereum](https://github.com/apwbs/MARTSIA-Ethereum)
 - [MARTSIA Algorand](https://github.com/apwbs/MARTSIA-Algorand)
@@ -7,8 +7,8 @@ This project is an extension of the following github repositories:
 ## How Lunch the application
 
 ```bash
-docker build . -t webmartsia
-docker run --rm -i -p 80:3000 webmartsia
+docker build . -t martsia-webui
+docker run --rm -i -p 80:3000 martsia-webui
 ```
 
 or 
