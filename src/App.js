@@ -95,7 +95,6 @@ class App extends Component {
     };
     reader.app = this;
     reader.readAsText(message);
-    console.log("eheheh " + this.json_message);
   }
 
 
